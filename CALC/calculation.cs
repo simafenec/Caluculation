@@ -63,8 +63,9 @@ namespace CALC
         public void Calc()
         {
             string formula;
+            Console.WriteLine("計算式を入力してください\n");
             formula = Console.ReadLine();
-            Console.WriteLine(formula);
+            // ()から探す
         }
     }
 }
