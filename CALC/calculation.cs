@@ -75,7 +75,7 @@ namespace CALC
             }
             else {
                 int exist_op_times = search_op(formula, op[2], start, end);
-                int exist_op_div = search_op(formula, op[2], start, end);
+                int exist_op_div = search_op(formula, op[3], start, end);
             }
         }
     }

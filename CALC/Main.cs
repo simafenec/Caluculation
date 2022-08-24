@@ -11,7 +11,9 @@ namespace CALC
         static void Main(string[] args)
         {
             KEISANNKI calc = new KEISANNKI();
-            calc.Calc();
+            Console.WriteLine("計算式を入力してください\n");
+            string formula = Console.ReadLine();
+            calc.Calc(formula);
         }
     }
 }
