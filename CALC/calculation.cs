@@ -60,12 +60,23 @@ namespace CALC
             return part_str.IndexOf(c);
         }
         //一行で入力可能なプログラム  ()演算子も扱えるようにする
-        public void Calc()
+         
+        public void Calc(string formula)
         {
-            string formula;
-            Console.WriteLine("計算式を入力してください\n");
-            formula = Console.ReadLine();
+            char[] op = new char[] {'(',')','*','/','+','-'};
             // ()から探す
+            int start = 0;
+            int end = formula.Length - 1;
+            int exist_op_left_brak=search_op(formula,op[0],start,end);
+            int exist_op_right_brak = search_op(formula, op[1], start, end);
+            if (exist_op_left_brak != -1 && exist_op_right_brak != -1)
+            {
+                Calc(formula.Substring(exist_op_left_brak + 1, exist_op_right_brak - 1));
+            }
+            else {
+                int exist_op_times = search_op(formula, op[2], start, end);
+                int exist_op_div = search_op(formula, op[2], start, end);
+            }
         }
     }
 }
