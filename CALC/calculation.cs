@@ -267,9 +267,14 @@ namespace CALC
                         //後ろに記号がある
                         int y = int.Parse(Splitstring(formula,exist_op_minus+1,exist_back-1));
                         ans = Super_Easy_calc(x, y, c);
+                        return_value = ans + Splitstring(formula, exist_op_minus + 1, end);
+                        return Calc(return_value);
                     }
-                    else { 
-                    
+                    else {
+                        //後ろに記号がない
+                        int y = int.Parse(Splitstring(formula, exist_op_minus + 1, end));
+                        return_value = Super_Easy_calc(x, y, c);
+                        return return_value;
                     }
                 }
 
