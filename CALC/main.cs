@@ -13,7 +13,8 @@ namespace CALC
             KEISANNKI calc = new KEISANNKI();
             Console.WriteLine("計算式を入力してください\n");
             string formula = Console.ReadLine();
-            calc.Calc(formula);
+            string ans = calc.Calc(formula);
+            Console.WriteLine(ans);
         }
     }
 }

@@ -42,6 +42,17 @@ namespace CALC
             string part_str = Splitstring(str,s,e);
             return part_str.IndexOf(c);
         }
+        public int Search_pos_min(int[] nums) {
+            //-1でない数字で最小のものを探す
+            int return_value=int.MaxValue;
+            for (int i = 0; i < nums.Length; i++) {
+                if (nums[i] < 0) { continue; }
+                else if(nums[i]<return_value){
+                    return_value = nums[i];
+                }
+            }
+            return return_value;
+        }
         //一行で入力可能なプログラム  ()演算子も扱えるようにする
         //ただしこのプログラムだと答えが整数になる計算しかできない　要修正
         public string Calc(string formula)
@@ -75,9 +86,9 @@ namespace CALC
                     //前に記号があればその場所を指す　前側には同記号はSearch_op関数の性質上来ない
                     int exist_op_front = Math.Max(Math.Max(Search_op(formula,op[3],start,exist_op_times-1),Search_op(formula, op[4], start, exist_op_times - 1)),Search_op(formula,op[5],start,exist_op_times-1));
                     //後ろに記号があればその場所を探す　後ろには同じ符号も来るので注意！
-                    int exist_op_times_back = Search_op(formula, op[2], exist_op_times + 1, end);
-                    int exist_op_plus_back = Search_op(formula, op[4], exist_op_times+1,end);
-                    int exist_op_minus_back = Search_op(formula, op[5], exist_op_times + 1, end);
+                    int exist_op_times_back = Search_op(formula, op[2], exist_op_times + 1, end) ;
+                    int exist_op_plus_back = Search_op(formula, op[4], exist_op_times+1,end) ;
+                    int exist_op_minus_back = Search_op(formula, op[5], exist_op_times + 1, end) ;
                     int exist_op_div_back = Search_op(formula,op[3],exist_op_times+1,end);
                     //後々の処理のために配列に入れる　大分汚いやり方　要改善
                     int[] exist_op_back = new int[] { exist_op_plus_back, exist_op_minus_back, exist_op_div_back ,exist_op_times_back};
@@ -105,10 +116,7 @@ namespace CALC
                     }
                     else{
                         //掛け算記号の後ろに記号があるとき
-                        var backlist = exist_op_back.ToList();
-                        backlist.RemoveAt(-1);
-                        exist_op_back = backlist.ToArray();
-                        int min_op_pos = exist_op_back.Min(); //後ろにある記号のうち最も掛け算記号に近い場所を探した　
+                        int min_op_pos = Search_pos_min(exist_op_back) + exist_op_times + 1; //後ろにある記号のうち最も掛け算記号に近い場所を探した　
                         if (exist_op_front == -1)
                         {
                             //前には記号がないとき　
@@ -159,10 +167,7 @@ namespace CALC
                         else
                         {
                             //後ろに記号があった時
-                            var backlist = exist_back.ToList();
-                            backlist.RemoveAt(-1);
-                            exist_back = backlist.ToArray();
-                            int min_op_pos = exist_back.Min();
+                            int min_op_pos =Search_pos_min(exist_back) + exist_op_div + 1;
                             int y = int.Parse(Splitstring(formula, exist_op_div + 1, min_op_pos - 1));
                             ans = Super_Easy_calc(x, y, c);
                             return_value = Splitstring(formula, start, exist_op_div - 1) + ans + Splitstring(formula, min_op_pos, end);
@@ -180,16 +185,13 @@ namespace CALC
                             int y = int.Parse(Splitstring(formula, exist_op_div + 1, end));
 
                             ans = Super_Easy_calc(x, y, c);
-                            return_value = Splitstring(formula, start, exist_op_div - 1) + ans;
+                            return_value =ans;
                             return return_value;
                         }
                         else
                         {
                             //後ろに記号があった時
-                            var backlist = exist_back.ToList();
-                            backlist.RemoveAt(-1);
-                            exist_back = backlist.ToArray();
-                            int min_op_pos = exist_back.Min();
+                            int min_op_pos = Search_pos_min(exist_back) + exist_op_div + 1;
                             int y = int.Parse(Splitstring(formula, exist_op_div + 1, min_op_pos - 1));
                             ans = Super_Easy_calc(x, y, c);
                             return_value = ans + Splitstring(formula, min_op_pos, end);
@@ -219,10 +221,7 @@ namespace CALC
                         else
                         {
                             //後ろに記号があった時
-                            var backlist = exist_back.ToList();
-                            backlist.RemoveAt(-1);
-                            exist_back = backlist.ToArray();
-                            int min_op_pos = exist_back.Min();
+                            int min_op_pos = Search_pos_min(exist_back) + exist_op_plus + 1;
                             int y = int.Parse(Splitstring(formula, exist_op_plus + 1, min_op_pos - 1));
                             ans = Super_Easy_calc(x, y, c);
                             return_value = ans + Splitstring(formula, min_op_pos, end);
@@ -246,10 +245,7 @@ namespace CALC
                         else
                         {
                             //後ろに記号があった時
-                            var backlist = exist_back.ToList();
-                            backlist.RemoveAt(-1);
-                            exist_back = backlist.ToArray();
-                            int min_op_pos = exist_back.Min();
+                            int min_op_pos = Search_pos_min(exist_back) + exist_op_plus + 1;
                             int y = int.Parse(Splitstring(formula, exist_op_plus + 1, min_op_pos - 1));
                             ans = Super_Easy_calc(x, y, c);
                             return_value = Splitstring(formula, start, exist_op_plus - 1) + ans + Splitstring(formula, min_op_pos, end);
