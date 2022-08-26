@@ -44,7 +44,8 @@ namespace CALC
         }
         public int Search_pos_min(int[] nums) {
             //-1でない数字で最小のものを探す
-            int return_value=int.MaxValue;
+            //もし渡された配列に-1しか入っていなかった場合は-1がそのまま返される。
+            int return_value =nums.Max();
             for (int i = 0; i < nums.Length; i++) {
                 if (nums[i] < 0) { continue; }
                 else if(nums[i]<return_value){
@@ -54,6 +55,10 @@ namespace CALC
             return return_value;
         }
         //一行で入力可能なプログラム  ()演算子も扱えるようにする
+        /*
+            割り算記号の後に掛け算記号が来ると分母が大きくなってしまう不具合
+            掛け算のみを先に処理するようにしてしまったことによるものであるため、割り算と掛け算は前から処理するように修正が必要
+         */
         public string Calc(string formula)
         {
             char[] op = new char[] { '(', ')', '*', '/', '+', '-' };//計算記号をまとめておく
@@ -81,15 +86,20 @@ namespace CALC
             else
             {
                 int exist_op_times = Search_op(formula, op[2], start, end); //掛け算記号を探す
-                if (exist_op_times != -1) { //掛け算記号が式の中にあったときの処理
-                    //前に記号があればその場所を指す　前側には同記号はSearch_op関数の性質上来ない
-                    int exist_op_front = Math.Max(Math.Max(Search_op(formula,op[3],start,exist_op_times-1),Search_op(formula, op[4], start, exist_op_times - 1)),Search_op(formula,op[5],start,exist_op_times-1));
+                int exist_op_div = Search_op(formula, op[3], start, end); //割り算記号を探す
+                int[] div_times = new int[] { exist_op_div, exist_op_times };
+                int min_place = Search_pos_min(div_times); //掛け算と割り算で前側にある方を探す。
+                if (exist_op_times == min_place&&exist_op_times!=-1) { //掛け算記号が式の中にあったときの処理 
+                    //前に記号があればその場所を指す　前側には同記号はSearch_op関数の性質上来ない　
+                    //先に掛け算がきたときの処理であるため割り算記号も前には来ない
+                    //よってこの処理が行なわれているときに前側にありうるのは足し算記号と引き算記号のみ
+                    int exist_op_front = Math.Max(Search_op(formula, op[4], start, exist_op_times - 1),Search_op(formula,op[5],start,exist_op_times-1));
                     //後ろに記号があればその場所を探す　後ろには同じ符号も来るので注意！
                     int exist_op_times_back = Search_op(formula, op[2], exist_op_times + 1, end) ;
+                    int exist_op_div_back = Search_op(formula, op[3], exist_op_times + 1, end);
                     int exist_op_plus_back = Search_op(formula, op[4], exist_op_times+1,end) ;
                     int exist_op_minus_back = Search_op(formula, op[5], exist_op_times + 1, end) ;
-                    int exist_op_div_back = Search_op(formula,op[3],exist_op_times+1,end);
-                    //後々の処理のために配列に入れる　大分汚いやり方　要改善
+                    //後々の処理のために配列に入れる
                     int[] exist_op_back = new int[] { exist_op_plus_back, exist_op_minus_back, exist_op_div_back ,exist_op_times_back};
 
                     if (exist_op_plus_back ==-1&& exist_op_minus_back==-1&&exist_op_div_back==-1&&exist_op_times_back==-1) {
@@ -139,21 +149,21 @@ namespace CALC
                     }
 
                 }
-                int exist_op_div = Search_op(formula, op[3], start, end); //割り算記号を探す
-                //割り算記号の処理では先に処理した掛け算記号は考慮しなくていい　割り算処理に入ったということは式にもう掛け算がないということ
-                if (exist_op_div != -1) {
-                    //割り算記号があった時の処理 掛け算よりも最適化が少しできている
+                else if (exist_op_div == min_place&&exist_op_div!=-1) {
+                    //割り算記号があった時の処理
                     int exist_op_front = Math.Max(Search_op(formula,op[4],start,exist_op_div-1),Search_op(formula,op[5],start,exist_op_div+1));
+                    int exist_times_back = Search_op(formula, op[2], exist_op_div + 1, end);
+                    int exist_div_back = Search_op(formula, op[3], exist_op_div + 1, end);
                     int exist_plus_back = Search_op(formula, op[4], exist_op_div + 1, end);
                     int exist_minus_back = Search_op(formula, op[5], exist_op_div + 1, end);
-                    int exist_div_back = Search_op(formula, op[3], exist_op_div + 1, end);
-                    int[] exist_back = new int[] { exist_plus_back, exist_minus_back ,exist_div_back};
+                    
+                    int[] exist_back = new int[] { exist_plus_back, exist_minus_back ,exist_div_back,exist_times_back};
                     if (exist_op_front != -1)
                     {
                         //前に記号があった時
                         double x = double.Parse(Splitstring(formula, exist_op_front + 1, exist_op_div - 1));
                         char c = formula[exist_op_div];
-                        if (exist_plus_back == -1 && exist_minus_back == -1&&exist_div_back==-1)
+                        if (exist_plus_back == -1 && exist_minus_back == -1&&exist_div_back==-1&&exist_times_back==-1)
                         {
                             //後ろに記号がなかった時
 
@@ -177,7 +187,7 @@ namespace CALC
                         //前に記号がなかった時
                         double x = double.Parse(Splitstring(formula,start,exist_op_div-1));
                         char c = formula[exist_op_div];
-                        if (exist_plus_back == -1 && exist_minus_back == -1&&exist_div_back==-1)
+                        if (exist_plus_back == -1 && exist_minus_back == -1&&exist_div_back==-1&&exist_times_back==-1)
                         {
                             //後ろに記号がなかった時 最後の計算なので値を返す
 
